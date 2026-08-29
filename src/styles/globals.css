@@ -1,0 +1,30 @@
+:root {
+  --mvis-railway-navy: #0B1F33;
+  --mvis-inspection-blue: #2CBAE8;
+  --mvis-safety-amber: #F2B544;
+  --mvis-defect-red: #D94B3D;
+  --mvis-ballast-grey: #73797D;
+  --mvis-evidence-paper: #F2EFE6;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { width: 100%; height: 100%; overflow: hidden; background: var(--mvis-railway-navy); color: white; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
+:focus-visible { outline: 2px solid var(--mvis-inspection-blue); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+@media (max-width: 600px) {
+  .mvis-controls { top: 8px !important; right: 8px !important; }
+  .mvis-hud-bar { padding: 48px 12px 10px !important; }
+  .mvis-scenario-id { display: none; }
+}
+.mvis-drone-panel { position: absolute; top: 42px; right: 0; width: 268px; padding: 12px; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; background: rgba(11,31,51,0.94); box-shadow: 0 10px 28px rgba(0,0,0,0.24); color: #F2EFE6; font-family: Inter, sans-serif; }
+.mvis-drone-row { display: flex; justify-content: space-between; gap: 12px; font-size: 10px; letter-spacing: .08em; color: #8ea5b2; margin-bottom: 8px; }
+.mvis-drone-hint { color: #9fb0b8; font-size: 10px; line-height: 1.4; margin: -2px 0 10px; }
+.mvis-drone-presets, .mvis-drone-actions { display: flex; gap: 5px; margin-bottom: 12px; }
+.mvis-drone-panel button, .mvis-drone-panel select { flex: 1; border: 1px solid rgba(255,255,255,0.12); border-radius: 5px; padding: 6px 5px; background: rgba(255,255,255,0.06); color: #F2EFE6; font: 10px Inter, sans-serif; cursor: pointer; }
+.mvis-drone-panel button.active { background: #2CBAE8; color: #0B1F33; border-color: #2CBAE8; }
+.mvis-drone-panel input { width: 100%; accent-color: #2CBAE8; margin-bottom: 10px; }
+@media (max-width: 600px) { .mvis-drone-panel { position: fixed; top: 74px; right: 8px; width: min(268px, calc(100vw - 16px)); } }
