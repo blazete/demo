@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { clone as cloneSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import * as THREE from 'three';
@@ -38,10 +38,32 @@ export function LicensedLocomotive({ night = false }: { night?: boolean }) {
 
 function Headlights({ night }: { night: boolean }) {
   return <group name="wap7-headlights" position={[0, 2.25, -8.25]}>
-    {[-0.58, 0.58].map((x) => <group key={x} position={[x, 0, 0]}>
-      <mesh><sphereGeometry args={[0.14, 16, 10]} /><meshStandardMaterial color="#fff7d6" emissive="#fff1a8" emissiveIntensity={night ? 6 : 0.35} toneMapped={false} /></mesh>
-      {night && <pointLight color="#fff0b0" intensity={6} distance={26} decay={2} />}
-    </group>)}
+    {[-0.58, 0.58].map((x) => <HeadlightUnit key={x} x={x} night={night} />)}
+  </group>;
+}
+
+function HeadlightUnit({ x, night }: { x: number; night: boolean }) {
+  const light = useRef<THREE.SpotLight>(null);
+
+  useEffect(() => {
+    const spotlight = light.current;
+    const parent = spotlight?.parent;
+    if (!spotlight || !parent) return;
+    spotlight.target.position.set(x, -1.4, -55);
+    parent.add(spotlight.target);
+    return () => { parent.remove(spotlight.target); };
+  }, [x]);
+
+  return <group>
+    <mesh position={[x, 0, 0]}><sphereGeometry args={[0.14, 16, 10]} /><meshStandardMaterial color="#fff7d6" emissive="#fff1a8" emissiveIntensity={night ? 9 : 0.35} toneMapped={false} /></mesh>
+    {night && <>
+      <spotLight ref={light} position={[x, 0, -0.05]} color="#fff3c4" intensity={420} distance={60} angle={0.2} penumbra={0.58} decay={1.55} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-bias={-0.0002} />
+      <pointLight position={[x, 0, -0.2]} color="#ffe9a6" intensity={18} distance={22} decay={2} />
+      <mesh position={[x, -0.38, -22.5]} rotation={[Math.PI / 2, 0, 0]} renderOrder={1}>
+        <coneGeometry args={[5.1, 45, 24, 1, true]} />
+        <meshBasicMaterial color="#fff1ba" transparent opacity={0.043} depthWrite={false} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} toneMapped={false} />
+      </mesh>
+    </>}
   </group>;
 }
 

@@ -1,31 +1,52 @@
+import { Suspense, useMemo } from 'react';
+import { Html, Text, useGLTF } from '@react-three/drei';
+import * as THREE from 'three';
 import type { SiteMetrics } from '../../data/types';
-import { Html } from '@react-three/drei';
 
-export function ControlRoom({ metrics }: { metrics: SiteMetrics }) {
+const OFFICE_MODEL_URL = '/assets/models/mvis-project-office-portacabin.glb';
+
+function ProjectOfficeAsset() {
+  const { scene } = useGLTF(OFFICE_MODEL_URL);
+  const model = useMemo(() => {
+    const clone = scene.clone(true);
+    clone.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    const bounds = new THREE.Box3().setFromObject(clone);
+    const center = bounds.getCenter(new THREE.Vector3());
+    clone.position.set(-center.x, -bounds.min.y, -center.z);
+    return clone;
+  }, [scene]);
+  return <primitive object={model} scale={0.16} />;
+}
+
+function OfficeFallback() {
+  return <mesh position={[0, 1.1, 0]} castShadow receiveShadow><boxGeometry args={[2.85, 2.2, 6.05]} /><meshStandardMaterial color="#d9d6cc" roughness={0.8} /></mesh>;
+}
+
+export function ControlRoom({ metrics, night = false }: { metrics: SiteMetrics; night?: boolean }) {
   return (
-    <group position={[14, 0, -5]}>
-      <mesh position={[0, 1.5, 0]} castShadow><boxGeometry args={[5, 3, 4]} /><meshStandardMaterial color="#6B6050" roughness={0.85} /></mesh>
-      <mesh position={[0, 3.1, 0]} castShadow><boxGeometry args={[5.4, 0.15, 4.4]} /><meshStandardMaterial color="#5A5040" roughness={0.8} /></mesh>
-      {[-1.5, 0, 1.5].map((x, i) => (
-        <mesh key={i} position={[x, 2, 2.01]}><boxGeometry args={[0.9, 0.8, 0.05]} /><meshStandardMaterial color="#1a3a5a" emissive={i === 1 ? '#2CBAE8' : '#F2B544'} emissiveIntensity={0.3} roughness={0.1} metalness={0.5} /></mesh>
-      ))}
-      <mesh position={[2, 1, 2.01]}><boxGeometry args={[0.8, 1.8, 0.05]} /><meshStandardMaterial color="#4A4030" roughness={0.8} /></mesh>
-      <group position={[0, 1.5, 1.5]}>
-        <mesh position={[-1.2, 0.5, 0]}><boxGeometry args={[1, 0.6, 0.03]} /><meshStandardMaterial color="#0B1F33" emissive="#2CBAE8" emissiveIntensity={0.2} roughness={0.2} /></mesh>
-        <mesh position={[0, 0.5, 0]}><boxGeometry args={[1, 0.6, 0.03]} /><meshStandardMaterial color="#0B1F33" emissive="#F2B544" emissiveIntensity={0.2} roughness={0.2} /></mesh>
-        <mesh position={[1.2, 0.5, 0]}><boxGeometry args={[1, 0.6, 0.03]} /><meshStandardMaterial color="#0B1F33" emissive="#2CBAE8" emissiveIntensity={0.15} roughness={0.2} /></mesh>
-        <mesh position={[0, -0.3, 0]}><boxGeometry args={[1, 0.5, 0.03]} /><meshStandardMaterial color="#0B1F33" emissive="#D94B3D" emissiveIntensity={0.15} roughness={0.2} /></mesh>
-      </group>
-      <Html transform position={[0, 2.2, 2.08]} distanceFactor={7} style={{ pointerEvents: 'none' }}>
-        <div aria-label="Control room metrics" style={{ width: 240, padding: 10, background: 'rgba(11,31,51,0.92)', color: '#F2EFE6', fontFamily: 'Inter, sans-serif', fontSize: 9, border: '1px solid rgba(44,186,232,0.4)', borderRadius: 4 }}>
-          <div style={{ color: '#2CBAE8', letterSpacing: 1, marginBottom: 6 }}>MVIS CONTROL ROOM</div>
+    <group name="MVIS project office" position={[14, 0, -5]} rotation={[0, -Math.PI / 2, 0]}>
+      <mesh position={[0, 0.055, 0]} receiveShadow><boxGeometry args={[3.4, 0.11, 6.55]} /><meshStandardMaterial color="#77756e" roughness={0.96} /></mesh>
+      <Suspense fallback={<OfficeFallback />}><ProjectOfficeAsset /></Suspense>
+      <Text position={[0, 2.45, 3.08]} fontSize={0.28} color="#f2efe6" anchorX="center" anchorY="middle" outlineWidth={0.018} outlineColor="#0b1f33">
+        MVIS PROJECT OFFICE
+      </Text>
+      <Html transform position={[0, 1.65, 3.16]} distanceFactor={7} style={{ pointerEvents: 'none' }}>
+        <div aria-label="Project office metrics" style={{ width: 240, padding: 10, background: 'rgba(11,31,51,0.94)', color: '#F2EFE6', fontFamily: 'Inter, sans-serif', fontSize: 9, border: '1px solid rgba(44,186,232,0.5)', borderRadius: 4, boxShadow: '0 10px 30px rgba(0,0,0,.35)' }}>
+          <div style={{ color: '#2CBAE8', letterSpacing: 1, marginBottom: 6 }}>MVIS PROJECT OFFICE</div>
           <div>Total trains inspected: <strong>{metrics.totalTrainsInspected}</strong></div>
           <div>Defects found: <strong style={{ color: '#D94B3D' }}>{metrics.defectsFound}</strong></div>
           <div>Today’s activity: <strong>{metrics.todayActivity}</strong></div>
           <div>Latest alerts: <strong style={{ color: '#F2B544' }}>{metrics.latestAlerts}</strong></div>
         </div>
       </Html>
-      <pointLight position={[2.5, 2.5, 2.5]} intensity={0.5} color="#F2EFE6" distance={6} decay={2} />
+      <pointLight position={[0, 2.65, 3.4]} intensity={night ? 8 : 0.35} color="#fff0c4" distance={11} decay={2} />
     </group>
   );
 }
+
+useGLTF.preload(OFFICE_MODEL_URL);

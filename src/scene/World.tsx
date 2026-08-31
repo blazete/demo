@@ -93,7 +93,7 @@ export function World({ scenario, context, portalState, currentShot, isGuided, h
         coaches={scenario?.trainRun.coaches}
         portalState={portalState} activeCoachIndex={activeIdx} highlightedComponent={highlightedComponent}
         scenarioSeed={scenario?.scenarioSeed ?? 0} onComponentInspect={onComponentInspect} onTrainSelect={onTrainSelect} />
-      <ControlRoom metrics={MOCK_SITE_METRICS} />
+      <ControlRoom metrics={MOCK_SITE_METRICS} night={timeOfDay === 'night'} />
     </>
   );
 }

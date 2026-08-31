@@ -80,6 +80,14 @@
 - Added responsive Site Equipment and equipment-inspector surfaces. Desktop uses a side card; mobile uses a viewport-safe bottom sheet. CAM-5 receives a dedicated line-scan preview and full-POV scan band.
 - Final verification on the exact completed state: 16/16 Vitest tests pass; TypeScript/Vite production build passes; the 14-check operator Playwright flow and 15-check existing correction flow both pass with no failed requests, console errors or framework overlay. Browser-plugin discovery returned no available browser, so the project Playwright dependency was used for rendered QA.
 
+### Session: 2026-09-01 — CAM-5, Project Office and Night Headlights
+- Validated and bundled the project-owner supplied CAM-5 enclosure, preserving `LineScanLens_Dome` and all eight named LED strips.
+- Extracted and optimized the supplied portacabin from 3.21 MB to 1.19 MB, normalized it to metre-scale, and placed it outside the track corridor as the MVIS project office while preserving operational metrics.
+- Replaced the WAP-7 glow-only lamps with twin 60 m spotlights, short-range nose fill and night-only additive beam cones.
+- Added asset-contract tests and project-owner asset records without asserting unknown redistribution licences.
+- Rendered QA confirmed CAM-5 focus, office placement and down-track night illumination. The focused night test, 14-check operator flow and 15-check rain/audio/train-control flow pass with no console errors or failed requests.
+- Final verification: 18/18 Vitest tests pass and the TypeScript/Vite production build passes. Vite continues to report the existing 1.31 MB JavaScript chunk advisory.
+
 ### Test Results
 | Test | Expected | Actual | Status |
 |------|----------|--------|--------|

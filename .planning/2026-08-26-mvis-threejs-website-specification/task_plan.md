@@ -4,10 +4,10 @@
 Create a comprehensive, implementation-ready Markdown specification for an interactive Three.js MVIS website, grounded in the PDFs in this folder and improved through system and experience design review.
 
 ## Next Step
-Team review of the verified operator-mode build and replacement of simulated camera media when real railway footage becomes available.
+Bundle and validate the approved line-scan and portacabin GLBs before integrating them into the scene.
 
 ## Current Phase
-Phase 10
+Phase 11
 
 ## Phases
 
@@ -78,6 +78,15 @@ Phase 10
 - [x] Obtain design approval and write the design specification
 - [x] Create and execute the implementation plan
 - [x] Verify desktop/mobile operator flow and existing feature regressions
+- **Status:** complete
+
+### Phase 11: CAM-5 GLB, Project Office and Night Headlights
+- [x] Inspect supplied GLB/ZIP assets and approve the integration design
+- [x] Write the implementation plan
+- [x] Bundle and validate both GLB assets
+- [x] Replace procedural CAM-5 and project-office geometry
+- [x] Add forward WAP-7 night headlight throw
+- [x] Run rendered desktop/mobile and regression verification
 - **Status:** complete
 
 ## Decisions Made

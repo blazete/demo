@@ -87,3 +87,12 @@
 - The approved implementation uses compact-preview-first plus optional full POV. Camera media records default to `simulation` and can later switch to `image` or `video` without changing the operator UI.
 - Continuous preset lerping was replaced by finite transitions followed by unrestricted OrbitControls, preserving manual zoom and pan. Explore includes WASD, Q/E altitude, Shift boost, Home reset and a permanent Whole Site toolbar action.
 - Playwright visual QA found and corrected two presentation issues: the equipment inspector covering the nested Whole Site action, and an oversized selected-camera world label during close mobile focus.
+
+## CAM-5, Portacabin and Headlight Findings
+- The supplied line-scan GLB is 92 KB, measures approximately 0.95 × 1.30 × 0.38 m, requires no GLTF extensions and contains `LineScanLens_Dome` plus eight `LEDStrip_*` nodes.
+- The identical line-scan file is present in Downloads and as an untracked project-root source copy; the source copy must be preserved while a bundled derivative is added under `public/assets/models`.
+- The portacabin ZIP contains a 3.1 MB GLB plus source textures. Its GLB bounds are approximately 17.82 × 13.51 × 38.00 source units, so it requires centring and scale normalization for a roughly 6 m project office.
+- The existing procedural control room is already placed safely beside the tracks at `[14, 0, -5]`; the portacabin should replace only its shell while retaining the live metrics panel.
+- The portacabin optimized from 3.21 MB to 1.19 MB. Runtime centring and a 0.16 scale produce an approximately 2.85 × 2.16 × 6.08 m office, positioned outside the x=12 perimeter fence at x=14.
+- Rendered CAM-5 QA confirms the bundled enclosure sits below the six-strip inspection bed and retains its selectable marker and simulated line-scan information panel.
+- Rendered night QA confirms the WAP-7 twin beams are visible down-track; final tuning uses 60 m spotlights, 420 intensity, short-range nose fill, and low-opacity additive cones only at night.
