@@ -1,8 +1,8 @@
-# MVIS Line-Scan GLB and Night Headlight Design
+# MVIS Line-Scan GLB, Project Office and Night Headlight Design
 
 ## Objective
 
-Replace the procedural CAM-5 line-scan enclosure with the user-created `line_scan_camera_enclosure.glb` while preserving the complete operator interaction contract. Improve the WAP-7 night headlights so they visibly illuminate the railway ahead instead of only glowing around the locomotive.
+Replace the procedural CAM-5 line-scan enclosure with the user-created `line_scan_camera_enclosure.glb` while preserving the complete operator interaction contract. Replace the procedural control-room building with the supplied portacabin as the MVIS project office. Improve the WAP-7 night headlights so they visibly illuminate the railway ahead instead of only glowing around the locomotive.
 
 ## Source Asset Findings
 
@@ -80,6 +80,39 @@ Replace the procedural CAM-5 line-scan enclosure with the user-created `line_sca
 - Shadow casting from headlights is optional and disabled by default to avoid unnecessary GPU cost.
 - The headlight effect must work on balanced and high quality. Low quality may omit visible beam cones while retaining forward spotlights if profiling requires it.
 
+## Portacabin Project Office
+
+### Source Asset
+
+- Source archive: `/Users/shreyanshmalviya/Downloads/portacabin.zip`.
+- The archive contains `source/Portacabin .glb` plus source texture files.
+- GLB size: approximately 3.1 MB.
+- Source bounds: approximately 17.82 × 13.51 × 38.00 source units, requiring normalization for the railway site.
+- The GLB has no required runtime extensions.
+
+### Integration
+
+- Extract and bundle the model as `public/assets/models/mvis-project-office-portacabin.glb`.
+- Optimize the bundled copy without altering the Downloads archive.
+- Load it through the same `useGLTF` asset pattern as the railway models.
+- Replace the procedural `ControlRoom` building shell rather than rendering two offices.
+- Normalize and centre the asset to an approximately 6 m long × 2.8 m wide × 2.2–2.7 m high project office.
+- Preserve doors, windows, roof and texture appearance from the supplied model.
+
+### Placement and Presentation
+
+- Place the project office on the existing control-room site at world position `[14, 0, -5]`, safely beside the tracks and maintenance path.
+- Keep all cabin geometry outside rail clearance and away from the overhead-equipment mast line.
+- Add a restrained concrete or compacted foundation pad if required by the model’s footprint.
+- Preserve the live MVIS metrics panel and mount it beside the office entrance or front wall.
+- Label it `MVIS PROJECT OFFICE` so railway officials understand its operational role.
+- Retain a subtle exterior light for night visibility without competing with the inspection or locomotive lighting.
+
+### Asset Record
+
+- Record the portacabin as a user-supplied project asset in the local asset README/attribution record.
+- Do not assert a third-party licence that has not been supplied by the user.
+
 ## Verification
 
 - Confirm the production bundle serves the GLB from the expected URL with no failed request.
@@ -90,12 +123,15 @@ Replace the procedural CAM-5 line-scan enclosure with the user-created `line_sca
 - Verify the model is correctly centred, vertically oriented and not duplicated with the procedural enclosure.
 - Verify night headlights illuminate rails and sleepers ahead from inspection, train-side and site views.
 - Verify day scenes do not show visible beam cones.
+- Verify the portacabin replaces the procedural shell, remains entirely beside the tracks, has realistic human-scale dimensions and retains the operational metrics panel.
+- Verify the office model loads with no missing textures or failed requests in desktop and mobile runs.
 - Run unit tests, production build, operator browser smoke and existing regression smoke.
-- Record desktop screenshots of CAM-5 and the night headlight throw.
+- Record desktop screenshots of CAM-5, the project office and the night headlight throw.
 
 ## Scope Boundaries
 
 - This change does not remodel or alter the source GLB.
 - It does not add actual CAM-5 railway footage.
 - It does not change camera calibration records or the equipment-menu media contract.
+- It does not place the office on any track or claim surveyed building coordinates.
 - It does not push changes to GitHub until explicitly requested.
