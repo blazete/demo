@@ -74,6 +74,11 @@
 - Added a seeded instanced rain system for the rain scenario and a procedural Web Audio soundscape for train rumble, rail clacks, rain, portal hum, activation tones and defect alerts.
 - Corrected manual timeline writeback while paused. Full rain/drone/audio/control/mobile QA and the complete B4 guided defect journey pass with no console issues or failed requests.
 - Added train click-to-control behavior, Space/Arrow/R keyboard shortcuts, and a procedural locomotive horn button; final feature QA confirms all controls respond correctly.
+- Replaced the simplified under-track line-scan placeholder with a reusable `LineScanCameraAssembly` R3F component generated from the supplied Three.js design: named PBR pit, housing, bracket, camera, optical lens, cable connector, six LED strips and animated scan status feedback.
+- Final line-scan integration verification: 11/11 unit tests pass, production TypeScript/Vite build passes, and the 15-check Chromium smoke flow passes with no failed requests, console errors or framework overlay.
+- Added the approved official-demo operator mode: unrestricted orbit/pan/zoom and keyboard roaming, reliable Whole Site reset, a typed equipment registry, clickable CAM-1 through CAM-5, compact simulated previews, full POV mode, future image/video media hooks, selectable lighting, proposed entry/exit axle sensors, relay sequencing and engineering coverage controls.
+- Added responsive Site Equipment and equipment-inspector surfaces. Desktop uses a side card; mobile uses a viewport-safe bottom sheet. CAM-5 receives a dedicated line-scan preview and full-POV scan band.
+- Final verification on the exact completed state: 16/16 Vitest tests pass; TypeScript/Vite production build passes; the 14-check operator Playwright flow and 15-check existing correction flow both pass with no failed requests, console errors or framework overlay. Browser-plugin discovery returned no available browser, so the project Playwright dependency was used for rendered QA.
 
 ### Test Results
 | Test | Expected | Actual | Status |

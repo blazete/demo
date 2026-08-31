@@ -77,3 +77,13 @@
 - The supplied WAP-7 and HD track assets were matched to their Sketchfab source pages and confirmed as CC BY; all five bundled asset sources are documented in `public/assets/ATTRIBUTION.md`.
 - Final GLB-integrated browser QA passes page identity, welcome rendering, pause/resume, inspection entry, actual defect focus, mobile rendering, framework-overlay absence and console health.
 - Visual QA confirmed that the open trackside array matches the supplied top/end-view topology: paired upper/lower area cameras, four lamp stations per side and an under-track scan strip, with no overhead gate.
+
+## Free-Roam and Camera-POV Design Findings
+- The current drone mode already uses damped `OrbitControls`, but camera position is continuously lerped toward the selected preset, which can fight user pan/zoom and prevents genuinely unrestricted roaming.
+- The current menu exposes only four site-level drone presets. It has no CAM-1 through CAM-5 POV registry, no equipment-selection state, no camera information panel, and no placeholder contract for future real footage.
+- The end-view drawing defines CAM-1 and CAM-2 as upper area-scan cameras with 6 mm lenses, CAM-3 and CAM-4 as lower area-scan cameras with 12 mm lenses, and CAM-5 as the under-track line-scan camera.
+- The top-view drawing defines eight named 150 W lamps (LED-1L through LED-4L and LED-1R through LED-4R), six under-track LED strips, two adjustable poles, and the broad-gauge track centreline. These are suitable selectable/toggleable equipment groups.
+- Neither supplied drawing explicitly labels relay sensors. Relay/trigger sensors must therefore be represented as a clearly identified proposed subsystem unless the user supplies a relay-sensor drawing or exact locations.
+- The approved implementation uses compact-preview-first plus optional full POV. Camera media records default to `simulation` and can later switch to `image` or `video` without changing the operator UI.
+- Continuous preset lerping was replaced by finite transitions followed by unrestricted OrbitControls, preserving manual zoom and pan. Explore includes WASD, Q/E altitude, Shift boost, Home reset and a permanent Whole Site toolbar action.
+- Playwright visual QA found and corrected two presentation issues: the equipment inspector covering the nested Whole Site action, and an oversized selected-camera world label during close mobile focus.

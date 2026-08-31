@@ -4,10 +4,10 @@
 Create a comprehensive, implementation-ready Markdown specification for an interactive Three.js MVIS website, grounded in the PDFs in this folder and improved through system and experience design review.
 
 ## Next Step
-Team review of the verified Indian Railways asset-integrated build; follow-up performance splitting can be scheduled separately.
+Team review of the verified operator-mode build and replacement of simulated camera media when real railway footage becomes available.
 
 ## Current Phase
-Phase 8
+Phase 10
 
 ## Phases
 
@@ -71,6 +71,15 @@ Phase 8
 - [x] Select inline execution
 - **Status:** complete
 
+### Phase 10: Official-Demo Free Roam & Equipment POV
+- [x] Review the current camera/control architecture and the supplied top/end-view drawings
+- [x] Clarify POV presentation, real-footage fallback behavior, and relay-sensor expectations
+- [x] Present 2–3 interaction approaches and a recommended design
+- [x] Obtain design approval and write the design specification
+- [x] Create and execute the implementation plan
+- [x] Verify desktop/mobile operator flow and existing feature regressions
+- **Status:** complete
+
 ## Decisions Made
 | Decision | Rationale |
 |----------|-----------|
@@ -97,3 +106,4 @@ Phase 8
 | Browser runtime unavailable | In-app Browser reported no browser available; use permitted Playwright fallback if installed |
 | Local browser-test tooling missing | Neither Playwright nor agent-browser CLI is installed; complete server/static checks and request approval before adding a testing dependency |
 | In-app Browser unavailable | Used the approved Playwright fallback after installing Chromium; local browser smoke completed |
+| Operator smoke Whole Site click intercepted by equipment inspector | Added an always-reachable Whole Site action to the top toolbar and updated the test to use its accessible name |

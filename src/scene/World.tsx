@@ -9,7 +9,10 @@ import { LightingRig } from './effects/LightingRig';
 import { ControlRoom } from './control-room/ControlRoom';
 import { ThirdPersonController } from '../systems/character/ThirdPersonController';
 import { FieldEngineer } from './character/FieldEngineer';
-import { DroneCamera } from '../systems/camera/DroneCamera';
+import { OperatorCameraController } from '../systems/camera/OperatorCameraController';
+import { TriggerSensorSystem } from './sensors/TriggerSensorSystem';
+import { getEquipment } from '../data/equipment/equipmentRegistry';
+import type { EquipmentId, OperatorMode } from '../data/equipment/equipmentRegistry';
 import { MOCK_SITE_METRICS } from '../data/mock/scenarios';
 import type { PortalState, Scenario, ScenarioContext } from '../data/types';
 
@@ -30,9 +33,18 @@ interface WorldProps {
   manualTrain?: { position: number; speed: number; direction: 1 | -1; playing: boolean };
   onManualTrainPosition?: (position: number) => void;
   onTrainSelect?: () => void;
+  selectedEquipmentId?: EquipmentId | null;
+  operatorMode?: OperatorMode;
+  operatorResetToken?: number;
+  lightsEnabled?: boolean;
+  sensorsEnabled?: boolean;
+  coverageEnabled?: boolean;
+  sensorPulse?: number;
+  onEquipmentSelect?: (id: EquipmentId) => void;
+  onExitPov?: () => void;
 }
 
-export function World({ scenario, context, portalState, currentShot, isGuided, highlightedComponent, onComponentInspect, droneMode = false, dronePreset = 'site', manualTrain, onManualTrainPosition, onTrainSelect }: WorldProps) {
+export function World({ scenario, context, portalState, currentShot, isGuided, highlightedComponent, onComponentInspect, droneMode = false, dronePreset = 'site', manualTrain, onManualTrainPosition, onTrainSelect, selectedEquipmentId = null, operatorMode = 'explore', operatorResetToken = 0, lightsEnabled = true, sensorsEnabled = true, coverageEnabled = false, sensorPulse = 0, onEquipmentSelect, onExitPov = () => {} }: WorldProps) {
   const trainPos = useRef(50);
   const timeOfDay = scenario?.environment.timeOfDay ?? 'day';
   const activeIdx = Math.min(context.currentCoachIndex, (scenario?.trainRun.coachCount ?? 6) - 1);
@@ -67,14 +79,15 @@ export function World({ scenario, context, portalState, currentShot, isGuided, h
       <LightingRig timeOfDay={timeOfDay} weather={scenario?.environment.weather} qualityTier={context.qualityTier} portalActive={portalState === 'active' || portalState === 'defect_detected'} />
       <CameraDirector currentShot={currentShot} trainPosition={trainPos.current} trainSpeed={TRAIN_SPEED}
         activeCoachIndex={activeIdx} portalState={portalState} highlightedComponent={highlightedComponent} isGuided={isGuided && !droneMode} />
-      <DroneCamera enabled={droneMode} preset={dronePreset} />
+      <OperatorCameraController enabled={droneMode} mode={operatorMode} preset={dronePreset} selectedEquipment={getEquipment(selectedEquipmentId)} resetToken={operatorResetToken} onExitPov={onExitPov} />
       <ThirdPersonController enabled={!isGuided && !droneMode} />
       <Ground />
       <TractionPoles />
       <Fencing />
       <Signals />
       <BackgroundElements />
-      <Portal portalState={portalState} paused={context.paused ?? false} />
+      <Portal portalState={portalState} paused={context.paused ?? false} selectedEquipmentId={selectedEquipmentId} lightsEnabled={lightsEnabled} coverageEnabled={coverageEnabled} onEquipmentSelect={onEquipmentSelect} />
+      <TriggerSensorSystem visible={sensorsEnabled} pulse={sensorPulse} selectedEquipmentId={selectedEquipmentId} onEquipmentSelect={onEquipmentSelect ?? (() => {})} />
       <FieldEngineer active={portalState === 'active' || portalState === 'defect_detected'} qualityTier={context.qualityTier} />
       <Train position={trainPos.current} speed={TRAIN_SPEED} night={timeOfDay === 'night'} coachCount={scenario?.trainRun.coachCount ?? 18}
         coaches={scenario?.trainRun.coaches}

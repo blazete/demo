@@ -1,11 +1,23 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import type { EquipmentId } from '../../data/equipment/equipmentRegistry';
 import type { PortalState } from '../../data/types';
 import { createRailwayMaterialPalette, disposeRailwayMaterialPalette } from '../materials/railwayMaterials';
+import { EquipmentMarker } from '../selection/EquipmentMarker';
 import { BROAD_GAUGE, INSPECTION_LAYOUT, INSPECTION_LENGTH } from './inspectionLayout';
+import { LineScanCameraAssembly } from './LineScanCameraAssembly';
 
-export function Portal({ portalState, paused = false }: { portalState: PortalState; paused?: boolean }) {
+interface PortalProps {
+  portalState: PortalState;
+  paused?: boolean;
+  selectedEquipmentId?: EquipmentId | null;
+  lightsEnabled?: boolean;
+  coverageEnabled?: boolean;
+  onEquipmentSelect?: (id: EquipmentId) => void;
+}
+
+export function Portal({ portalState, paused = false, selectedEquipmentId = null, lightsEnabled = true, coverageEnabled = false, onEquipmentSelect }: PortalProps) {
   const materials = useMemo(() => createRailwayMaterialPalette(), []);
   useEffect(() => () => disposeRailwayMaterialPalette(materials), [materials]);
   const active = portalState === 'active' || portalState === 'defect_detected';
@@ -13,13 +25,13 @@ export function Portal({ portalState, paused = false }: { portalState: PortalSta
 
   return (
     <group name="open-mvis-inspection-array">
-      <InspectionBed active={active} defect={defect} />
+      <InspectionBed active={active} defect={defect} lightsEnabled={lightsEnabled} selected={selectedEquipmentId === 'TRACK-LED-ARRAY'} onSelect={onEquipmentSelect} />
       {INSPECTION_LAYOUT.poles.map((pole) => <AdjustablePole key={pole.id} position={[...pole.position]} side={pole.side} materials={materials} />)}
-      <SideLightingRails active={active} defect={defect} materials={materials} />
-      {INSPECTION_LAYOUT.cameras.map((camera) => <AreaScanCamera key={camera.id} camera={camera} active={active} defect={defect} materials={materials} />)}
-      <LineScanPit active={active} defect={defect} materials={materials} />
-      <CoverageVolumes active={active} defect={defect} paused={paused} />
-      <ServiceEquipment materials={materials} />
+      <SideLightingRails active={active} defect={defect} materials={materials} lightsEnabled={lightsEnabled} selectedEquipmentId={selectedEquipmentId} onSelect={onEquipmentSelect} />
+      {INSPECTION_LAYOUT.cameras.map((camera) => <AreaScanCamera key={camera.id} camera={camera} active={active} defect={defect} materials={materials} selected={selectedEquipmentId === camera.id} onSelect={onEquipmentSelect} />)}
+      <LineScanPit active={active} defect={defect} lightsEnabled={lightsEnabled} selected={selectedEquipmentId === 'CAM-5'} onSelect={onEquipmentSelect} />
+      <CoverageVolumes active={active || coverageEnabled} defect={defect} paused={paused} />
+      <ServiceEquipment materials={materials} selected={selectedEquipmentId === 'RELAY-CABINET'} onSelect={onEquipmentSelect} />
     </group>
   );
 }
@@ -27,13 +39,16 @@ export function Portal({ portalState, paused = false }: { portalState: PortalSta
 export const InspectionArray = Portal;
 type Palette = ReturnType<typeof createRailwayMaterialPalette>;
 
-function InspectionBed({ active, defect }: { active: boolean; defect: boolean }) {
+function InspectionBed({ active, defect, lightsEnabled, selected, onSelect }: { active: boolean; defect: boolean; lightsEnabled: boolean; selected: boolean; onSelect?: (id: EquipmentId) => void }) {
   return (
     <group>
       <mesh position={[0, -0.055, 0]} receiveShadow><boxGeometry args={[BROAD_GAUGE + 1.05, 0.12, INSPECTION_LENGTH + 0.5]} /><meshStandardMaterial color="#8f8b82" roughness={0.94} /></mesh>
-      {INSPECTION_LAYOUT.railStrips.map((strip) => (
-        <mesh key={strip.id} position={[...strip.position]}><boxGeometry args={[0.085, 0.035, INSPECTION_LENGTH]} /><meshStandardMaterial color={defect ? '#ef5b45' : '#ffe06a'} emissive={defect ? '#ef3d2f' : '#ffd84c'} emissiveIntensity={active ? 2.6 : 0.16} roughness={0.3} toneMapped={false} /></mesh>
-      ))}
+      <group name="TRACK-LED-ARRAY" onClick={(event) => { event.stopPropagation(); onSelect?.('TRACK-LED-ARRAY'); }} onPointerOver={(event) => { event.stopPropagation(); document.body.style.cursor = 'pointer'; }} onPointerOut={() => { document.body.style.cursor = 'default'; }}>
+        {INSPECTION_LAYOUT.railStrips.map((strip) => (
+          <mesh key={strip.id} position={[...strip.position]}><boxGeometry args={[0.085, 0.035, INSPECTION_LENGTH]} /><meshStandardMaterial color={defect ? '#ef5b45' : '#ffe06a'} emissive={defect ? '#ef3d2f' : '#ffd84c'} emissiveIntensity={lightsEnabled ? (active ? 2.6 : 0.42) : 0.02} roughness={0.3} toneMapped={false} /></mesh>
+        ))}
+        {selected && <EquipmentMarker label="TRACK LED ARRAY" position={[0, 0.72, 0]} />}
+      </group>
       {[-1, 1].map((side) => <group key={side} position={[side * (BROAD_GAUGE / 2 + 0.62), 0.015, 0]}>{[-1.3, -0.65, 0, 0.65, 1.3].map((z, index) => <mesh key={z} position={[0, 0, z]} rotation={[-Math.PI / 2, 0, 0]}><boxGeometry args={[0.32, 0.58, 0.018]} /><meshStandardMaterial color={index % 2 ? '#171a19' : '#e4b626'} roughness={0.75} /></mesh>)}</group>)}
     </group>
   );
@@ -51,24 +66,26 @@ function AdjustablePole({ position, side, materials }: { position: [number, numb
   );
 }
 
-function SideLightingRails({ materials, active, defect }: { materials: Palette; active: boolean; defect: boolean }) {
+function SideLightingRails({ materials, active, defect, lightsEnabled, selectedEquipmentId, onSelect }: { materials: Palette; active: boolean; defect: boolean; lightsEnabled: boolean; selectedEquipmentId: EquipmentId | null; onSelect?: (id: EquipmentId) => void }) {
   return <group>{[-1, 1].map((side) => <group key={side}>
     <mesh position={[side * 2.2, 2.16, 0]} castShadow><boxGeometry args={[0.1, 0.1, INSPECTION_LENGTH]} /><primitive object={materials.galvanizedSteel} attach="material" /></mesh>
-    {INSPECTION_LAYOUT.sideLamps.filter((lamp) => Math.sign(lamp.position[0]) === side).map((lamp) => <group key={lamp.id} position={[lamp.position[0], 2.16, lamp.position[2]]} rotation={[0, side * -0.2, side * -0.12]}>
+    {INSPECTION_LAYOUT.sideLamps.filter((lamp) => Math.sign(lamp.position[0]) === side).map((lamp) => <group key={lamp.id} name={lamp.id} position={[lamp.position[0], 2.16, lamp.position[2]]} rotation={[0, side * -0.2, side * -0.12]} onClick={(event) => { event.stopPropagation(); onSelect?.(lamp.id as EquipmentId); }} onPointerOver={(event) => { event.stopPropagation(); document.body.style.cursor = 'pointer'; }} onPointerOut={() => { document.body.style.cursor = 'default'; }}>
       <mesh castShadow><boxGeometry args={[0.44, 0.24, 0.16]} /><primitive object={materials.safetyYellow} attach="material" /></mesh>
-      <mesh position={[-side * 0.015, -0.02, -side * 0.09]}><boxGeometry args={[0.34, 0.13, 0.018]} /><meshStandardMaterial color={defect ? '#ff6454' : '#fff0a1'} emissive={defect ? '#ef3d2f' : '#ffd95a'} emissiveIntensity={active ? 2.2 : 0.14} toneMapped={false} /></mesh>
+      <mesh position={[-side * 0.015, -0.02, -side * 0.09]}><boxGeometry args={[0.34, 0.13, 0.018]} /><meshStandardMaterial color={defect ? '#ff6454' : '#fff0a1'} emissive={defect ? '#ef3d2f' : '#ffd95a'} emissiveIntensity={lightsEnabled ? (active ? 2.2 : 0.38) : 0.02} toneMapped={false} /></mesh>
+      {selectedEquipmentId === lamp.id && <EquipmentMarker label={lamp.id} position={[0, 0.58, 0]} />}
     </group>)}
   </group>)}</group>;
 }
 
-function AreaScanCamera({ camera, active, defect, materials }: { camera: typeof INSPECTION_LAYOUT.cameras[number]; active: boolean; defect: boolean; materials: Palette }) {
+function AreaScanCamera({ camera, active, defect, materials, selected, onSelect }: { camera: typeof INSPECTION_LAYOUT.cameras[number]; active: boolean; defect: boolean; materials: Palette; selected: boolean; onSelect?: (id: EquipmentId) => void }) {
   const side = Math.sign(camera.position[0]);
-  return <group position={[...camera.position]} rotation={[...camera.rotation]}>
+  return <group name={camera.id} position={[...camera.position]} rotation={[...camera.rotation]} onClick={(event) => { event.stopPropagation(); onSelect?.(camera.id as EquipmentId); }} onPointerOver={(event) => { event.stopPropagation(); document.body.style.cursor = 'pointer'; }} onPointerOut={() => { document.body.style.cursor = 'default'; }}>
     <mesh castShadow><boxGeometry args={[0.52, camera.kind === 'upper' ? 0.42 : 0.35, 0.52]} /><primitive object={materials.paintedSteel} attach="material" /></mesh>
     <mesh position={[-side * 0.28, 0, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.13, 0.16, 0.12, 18]} /><primitive object={materials.rubber} attach="material" /></mesh>
     <mesh position={[-side * 0.35, 0, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.09, 0.09, 0.035, 20]} /><primitive object={materials.lens} attach="material" /></mesh>
     <mesh position={[side * 0.18, 0.15, 0.27]}><sphereGeometry args={[0.032, 10, 10]} /><meshStandardMaterial color={defect ? '#ff4f3e' : '#56d5ff'} emissive={defect ? '#ff301f' : '#2cbae8'} emissiveIntensity={active ? 3 : 0.15} toneMapped={false} /></mesh>
     <Cable side={side} materials={materials} />
+    {selected && <EquipmentMarker label={camera.id} position={[0, 0.72, 0]} />}
   </group>;
 }
 
@@ -78,12 +95,9 @@ function Cable({ side, materials }: { side: number; materials: Palette }) {
   return <mesh geometry={geometry}><primitive object={materials.rubber} attach="material" /></mesh>;
 }
 
-function LineScanPit({ active, defect, materials }: { active: boolean; defect: boolean; materials: Palette }) {
-  return <group position={[...INSPECTION_LAYOUT.lineScanner.position]}>
-    <mesh position={[0, -0.15, 0]}><boxGeometry args={[0.84, 0.32, 0.82]} /><meshStandardMaterial color="#292b29" roughness={0.78} metalness={0.45} /></mesh>
-    <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.68, 0.66]} /><meshStandardMaterial color="#151817" roughness={0.7} metalness={0.6} /></mesh>
-    <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0]}><boxGeometry args={[0.48, 0.16, 0.06]} /><primitive object={materials.paintedSteel} attach="material" /></mesh>
-    <mesh position={[0, 0.075, 0]} rotation={[-Math.PI / 2, 0, 0]}><boxGeometry args={[0.36, 0.045, 0.02]} /><meshStandardMaterial color={defect ? '#ff4f3e' : '#72ddff'} emissive={defect ? '#ff301f' : '#2cbae8'} emissiveIntensity={active ? 3.2 : 0.12} toneMapped={false} /></mesh>
+function LineScanPit({ active, defect, lightsEnabled, selected, onSelect }: { active: boolean; defect: boolean; lightsEnabled: boolean; selected: boolean; onSelect?: (id: EquipmentId) => void }) {
+  return <group>
+    <LineScanCameraAssembly active={active} defect={defect} lightsEnabled={lightsEnabled} selected={selected} onSelect={onSelect} />
   </group>;
 }
 
@@ -97,10 +111,11 @@ function CoverageVolumes({ active, defect, paused }: { active: boolean; defect: 
   </group>;
 }
 
-function ServiceEquipment({ materials }: { materials: Palette }) {
+function ServiceEquipment({ materials, selected, onSelect }: { materials: Palette; selected: boolean; onSelect?: (id: EquipmentId) => void }) {
   return <group>{[-1, 1].map((side) => <group key={side} position={[side * 3.15, 0, 0.72]}>
-    <mesh position={[0, 0.62, 0]} castShadow><boxGeometry args={[0.62, 1.24, 0.5]} /><meshStandardMaterial color="#adb1ad" roughness={0.6} metalness={0.38} /></mesh>
+    <mesh name={side === 1 ? 'RELAY-CABINET' : 'EDGE-CABINET'} position={[0, 0.62, 0]} castShadow onClick={(event) => { if (side !== 1) return; event.stopPropagation(); onSelect?.('RELAY-CABINET'); }} onPointerOver={(event) => { if (side !== 1) return; event.stopPropagation(); document.body.style.cursor = 'pointer'; }} onPointerOut={() => { document.body.style.cursor = 'default'; }}><boxGeometry args={[0.62, 1.24, 0.5]} /><meshStandardMaterial color="#adb1ad" roughness={0.6} metalness={0.38} /></mesh>
     <mesh position={[-side * 0.316, 0.67, 0]}><boxGeometry args={[0.018, 0.92, 0.38]} /><meshStandardMaterial color="#707572" roughness={0.62} metalness={0.55} /></mesh>
     <mesh position={[-side * 0.33, 0.86, 0.12]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.025, 0.025, 0.025, 8]} /><primitive object={materials.rubber} attach="material" /></mesh>
+    {side === 1 && selected && <EquipmentMarker label="RELAY CABINET" position={[0, 1.55, 0]} />}
   </group>)}</group>;
 }

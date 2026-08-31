@@ -13,6 +13,11 @@ import { AccessibleWalkthrough } from '../ui/fallback/AccessibleWalkthrough';
 import type { DronePreset } from '../systems/camera/DroneCamera';
 import { Soundscape } from '../systems/audio/Soundscape';
 import { scenarioMachine } from '../experience/machine/scenarioMachine';
+import { getEquipment, isCameraEquipment } from '../data/equipment/equipmentRegistry';
+import type { EquipmentId, OperatorMode } from '../data/equipment/equipmentRegistry';
+import { EquipmentMenu } from '../ui/operator/EquipmentMenu';
+import { EquipmentInspector } from '../ui/operator/EquipmentInspector';
+import { CameraPovOverlay } from '../ui/operator/CameraPovOverlay';
 import { getComponentId } from '../data/types';
 import type { ScenarioId, PortalState, QualityTier, GuideStage, InspectionProgress, ScenarioContext } from '../data/types';
 
@@ -45,6 +50,14 @@ export function ExperienceShell() {
   const [dronePreset, setDronePreset] = useState<DronePreset>('site');
   const [manualTrain, setManualTrain] = useState({ position: 50, speed: 8, direction: -1 as 1 | -1, playing: false });
   const [hornTrigger, setHornTrigger] = useState(0);
+  const [equipmentMenuOpen, setEquipmentMenuOpen] = useState(false);
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<EquipmentId | null>(null);
+  const [operatorMode, setOperatorMode] = useState<OperatorMode>('explore');
+  const [operatorResetToken, setOperatorResetToken] = useState(0);
+  const [lightsEnabled, setLightsEnabled] = useState(true);
+  const [sensorsEnabled, setSensorsEnabled] = useState(true);
+  const [coverageEnabled, setCoverageEnabled] = useState(false);
+  const [sensorPulse, setSensorPulse] = useState(0);
 
   useEffect(() => {
     actor.start();
@@ -95,9 +108,36 @@ export function ExperienceShell() {
   const handleExplore = useCallback(() => actor.send({ type: 'EXPLORE' }), [actor]);
   const handleReturnToGuide = useCallback(() => actor.send({ type: 'RETURN_TO_GUIDE' }), [actor]);
   const handleManualPosition = useCallback((position: number) => setManualTrain(value => ({ ...value, position })), []);
-  const toggleDrone = useCallback(() => setDroneMode(value => !value), []);
+  const toggleDrone = useCallback(() => setDroneMode(value => {
+    const next = !value;
+    if (!next) {
+      setOperatorMode('explore');
+      setEquipmentMenuOpen(false);
+      setSelectedEquipmentId(null);
+    }
+    return next;
+  }), []);
   const resetManualTrain = useCallback(() => setManualTrain(value => ({ ...value, position: 50, playing: false })), []);
-  const handleTrainSelect = useCallback(() => { setDroneMode(true); setDronePreset('train-side'); setManualTrain(value => ({ ...value, playing: false })); }, []);
+  const handleTrainSelect = useCallback(() => { setDroneMode(true); setOperatorMode('explore'); setDronePreset('train-side'); setManualTrain(value => ({ ...value, playing: false })); }, []);
+  const handleEquipmentSelect = useCallback((id: EquipmentId) => {
+    setDroneMode(true);
+    setSelectedEquipmentId(id);
+    setOperatorMode('focus');
+    setEquipmentMenuOpen(false);
+  }, []);
+  const handleWholeSite = useCallback(() => {
+    setDroneMode(true);
+    setOperatorMode('explore');
+    setDronePreset('site');
+    setOperatorResetToken(value => value + 1);
+  }, []);
+  const handleExitPov = useCallback(() => setOperatorMode('explore'), []);
+  const handleCloseInspector = useCallback(() => { setSelectedEquipmentId(null); setOperatorMode('explore'); }, []);
+  const handleTriggerSensors = useCallback(() => {
+    setSensorsEnabled(true);
+    setLightsEnabled(true);
+    setSensorPulse(value => value + 1);
+  }, []);
 
   useEffect(() => {
     if (!droneMode || showWelcome) return;
@@ -128,6 +168,8 @@ export function ExperienceShell() {
     }
   }, [stage]);
   const highlightedComponent = snapshot.context.activeDefect ? getComponentId(snapshot.context.activeDefect.location) : null;
+  const selectedEquipment = getEquipment(selectedEquipmentId);
+  const selectedCamera = isCameraEquipment(selectedEquipment) ? selectedEquipment : null;
 
   const portalState: PortalState = snapshot.context.portalState;
   const context: ScenarioContext = {
@@ -169,7 +211,10 @@ export function ExperienceShell() {
         style={{ background: '#0B1F33' }}>
         <World scenario={scenario} context={context} portalState={portalState}
           currentShot={currentShot} isGuided={isGuided} highlightedComponent={highlightedComponent} droneMode={droneMode}
-          dronePreset={dronePreset} manualTrain={manualTrain} onManualTrainPosition={handleManualPosition} onTrainSelect={handleTrainSelect} />
+          dronePreset={dronePreset} manualTrain={manualTrain} onManualTrainPosition={handleManualPosition} onTrainSelect={handleTrainSelect}
+          selectedEquipmentId={selectedEquipmentId} operatorMode={operatorMode} operatorResetToken={operatorResetToken}
+          lightsEnabled={lightsEnabled} sensorsEnabled={sensorsEnabled} coverageEnabled={coverageEnabled} sensorPulse={sensorPulse}
+          onEquipmentSelect={handleEquipmentSelect} onExitPov={handleExitPov} />
       </Canvas>
       {!showWelcome && <Soundscape muted={muted} stage={stage} weather={scenario?.environment.weather ?? 'clear'} portalState={portalState} hornTrigger={hornTrigger} />}
 
@@ -184,7 +229,15 @@ export function ExperienceShell() {
             manualTrain={manualTrain} onManualPlay={() => setManualTrain(value => ({ ...value, playing: !value.playing }))}
             onManualDirection={(direction) => setManualTrain(value => ({ ...value, direction }))}
             onManualSpeed={(speed) => setManualTrain(value => ({ ...value, speed }))} onManualReset={resetManualTrain} onManualPosition={handleManualPosition}
-            onHorn={() => setHornTrigger(value => value + 1)} />
+            onHorn={() => setHornTrigger(value => value + 1)} equipmentMenuOpen={equipmentMenuOpen}
+            onEquipmentMenuToggle={() => setEquipmentMenuOpen(value => !value)} onWholeSite={handleWholeSite} inspectorOpen={Boolean(selectedEquipment)} />
+          <EquipmentMenu open={equipmentMenuOpen} selectedId={selectedEquipmentId} onClose={() => setEquipmentMenuOpen(false)} onSelect={handleEquipmentSelect} />
+          {operatorMode !== 'pov' && <EquipmentInspector equipment={selectedEquipment} lightsEnabled={lightsEnabled} sensorsEnabled={sensorsEnabled} coverageEnabled={coverageEnabled}
+            onClose={handleCloseInspector} onLocate={() => setOperatorMode('focus')} onOpenPov={() => setOperatorMode('pov')}
+            onToggleLights={() => setLightsEnabled(value => !value)} onToggleSensors={() => setSensorsEnabled(value => !value)}
+            onToggleCoverage={() => setCoverageEnabled(value => !value)} onTrigger={handleTriggerSensors} />}
+          {operatorMode === 'pov' && <CameraPovOverlay camera={selectedCamera} onReturn={handleExitPov} />}
+          <div className="sr-only" aria-live="polite">{selectedEquipment ? `${selectedEquipment.name} selected. ${operatorMode === 'pov' ? 'Full camera point of view open.' : 'Information preview open.'}` : ''}</div>
           <EvidenceCard defect={snapshot.context.activeDefect} evidence={scenario?.evidence ?? []} scenario={scenario} onClose={() => actor.send({ type: 'HIDE_EVIDENCE' })} isVisible={snapshot.context.evidenceVisible} />
           <CompletionSummary scenario={scenario ?? getScenario('spring-defect-day')} defects={snapshot.context.discoveredDefects} coachCount={totalCoaches}
             isVisible={stage === 'COMPLETE'} onExplore={handleExplore} onReviewEvidence={() => actor.send({ type: 'SHOW_EVIDENCE' })} onReplay={handleReplay} />

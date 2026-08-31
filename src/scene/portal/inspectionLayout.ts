@@ -14,7 +14,7 @@ export const INSPECTION_LAYOUT = {
     { id: 'CAM-4', kind: 'lower', position: [1.82, 0.72, -0.05] as const, rotation: [0, -0.25, 0.08] as const },
   ],
   sideLamps: Array.from({ length: 8 }, (_, index) => ({
-    id: `LED-${Math.floor(index / 4) + 1}${index < 4 ? 'L' : 'R'}-${(index % 4) + 1}`,
+    id: `LED-${(index % 4) + 1}${index < 4 ? 'L' : 'R'}`,
     position: [index < 4 ? -2.22 : 2.22, 2.92, -1.05 + (index % 4) * 0.7] as const,
   })),
   railStrips: Array.from({ length: 6 }, (_, index) => ({
