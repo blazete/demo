@@ -2,6 +2,7 @@ import { Suspense, useMemo } from 'react';
 import { Html, Text, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import type { SiteMetrics } from '../../data/types';
+import { PROJECT_OFFICE_FOUNDATION, PROJECT_OFFICE_TRANSFORM } from '../layout/siteAssetTransforms';
 
 const OFFICE_MODEL_URL = '/assets/models/mvis-project-office-portacabin.glb';
 
@@ -20,7 +21,7 @@ function ProjectOfficeAsset() {
     clone.position.set(-center.x, -bounds.min.y, -center.z);
     return clone;
   }, [scene]);
-  return <primitive object={model} scale={0.16} />;
+  return <primitive object={model} scale={PROJECT_OFFICE_TRANSFORM.scale} />;
 }
 
 function OfficeFallback() {
@@ -29,13 +30,13 @@ function OfficeFallback() {
 
 export function ControlRoom({ metrics, night = false }: { metrics: SiteMetrics; night?: boolean }) {
   return (
-    <group name="MVIS project office" position={[14, 0, -5]} rotation={[0, -Math.PI / 2, 0]}>
-      <mesh position={[0, 0.055, 0]} receiveShadow><boxGeometry args={[3.4, 0.11, 6.55]} /><meshStandardMaterial color="#77756e" roughness={0.96} /></mesh>
+    <group name="MVIS project office" position={[...PROJECT_OFFICE_TRANSFORM.position]} rotation={[0, PROJECT_OFFICE_TRANSFORM.rotationY, 0]}>
+      <mesh position={[...PROJECT_OFFICE_FOUNDATION.position]} receiveShadow><boxGeometry args={[...PROJECT_OFFICE_FOUNDATION.size]} /><meshStandardMaterial color="#77756e" roughness={0.96} /></mesh>
       <Suspense fallback={<OfficeFallback />}><ProjectOfficeAsset /></Suspense>
-      <Text position={[0, 2.45, 3.08]} fontSize={0.28} color="#f2efe6" anchorX="center" anchorY="middle" outlineWidth={0.018} outlineColor="#0b1f33">
+      <Text position={[-1.52, 2.1, 0]} rotation={[0, -Math.PI / 2, 0]} fontSize={0.28} color="#f2efe6" anchorX="center" anchorY="middle" outlineWidth={0.018} outlineColor="#0b1f33">
         MVIS PROJECT OFFICE
       </Text>
-      <Html transform position={[0, 1.65, 3.16]} distanceFactor={7} style={{ pointerEvents: 'none' }}>
+      <Html transform position={[-1.57, 1.45, 0]} rotation={[0, -Math.PI / 2, 0]} distanceFactor={7} style={{ pointerEvents: 'none' }}>
         <div aria-label="Project office metrics" style={{ width: 240, padding: 10, background: 'rgba(11,31,51,0.94)', color: '#F2EFE6', fontFamily: 'Inter, sans-serif', fontSize: 9, border: '1px solid rgba(44,186,232,0.5)', borderRadius: 4, boxShadow: '0 10px 30px rgba(0,0,0,.35)' }}>
           <div style={{ color: '#2CBAE8', letterSpacing: 1, marginBottom: 6 }}>MVIS PROJECT OFFICE</div>
           <div>Total trains inspected: <strong>{metrics.totalTrainsInspected}</strong></div>
@@ -44,7 +45,7 @@ export function ControlRoom({ metrics, night = false }: { metrics: SiteMetrics; 
           <div>Latest alerts: <strong style={{ color: '#F2B544' }}>{metrics.latestAlerts}</strong></div>
         </div>
       </Html>
-      <pointLight position={[0, 2.65, 3.4]} intensity={night ? 8 : 0.35} color="#fff0c4" distance={11} decay={2} />
+      <pointLight position={[-1.8, 2.45, 0]} intensity={night ? 8 : 0.35} color="#fff0c4" distance={11} decay={2} />
     </group>
   );
 }

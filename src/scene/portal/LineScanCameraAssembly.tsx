@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import type { EquipmentId } from '../../data/equipment/equipmentRegistry';
+import { CAM5_MODEL_TRANSFORM } from '../layout/siteAssetTransforms';
 import { EquipmentMarker } from '../selection/EquipmentMarker';
 import { INSPECTION_LAYOUT } from './inspectionLayout';
 
@@ -70,7 +71,15 @@ function CameraAsset({ active, defect, lightsEnabled }: Pick<Props, 'active' | '
     });
   });
 
-  return <group rotation={[Math.PI / 2, 0, 0]} scale={0.72} position={[0, 0.08, 0]}><primitive object={prepared.model} /></group>;
+  return (
+    <group
+      rotation={[CAM5_MODEL_TRANSFORM.rotationX, 0, 0]}
+      scale={CAM5_MODEL_TRANSFORM.scale}
+      position={[...CAM5_MODEL_TRANSFORM.position]}
+    >
+      <primitive object={prepared.model} />
+    </group>
+  );
 }
 
 function CameraFallback() {
