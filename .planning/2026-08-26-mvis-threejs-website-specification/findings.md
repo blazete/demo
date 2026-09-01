@@ -96,3 +96,7 @@
 - The portacabin optimized from 3.21 MB to 1.19 MB. Runtime centring and a 0.16 scale produce an approximately 2.85 × 2.16 × 6.08 m office, positioned outside the x=12 perimeter fence at x=14.
 - Rendered CAM-5 QA confirms the bundled enclosure sits below the six-strip inspection bed and retains its selectable marker and simulated line-scan information panel.
 - Rendered night QA confirms the WAP-7 twin beams are visible down-track; final tuning uses 60 m spotlights, 420 intensity, short-range nose fill, and low-opacity additive cones only at night.
+- User screenshots exposed two transform defects missed by the initial distant QA: CAM-5's source-local positive-Z optical axis had been rotated downward, and the cabin's long dimension had been rotated across the railway corridor.
+- Corrected CAM-5 uses a negative 90-degree X rotation and 0.30 m inner offset. The close operator view now visibly shows the supplied cyan dome, trim ring, camera body and cable above the LED-strip plane.
+- Corrected project office uses no Y rotation at `[15, 0, -5]`. Its 3.4 × 6.55 m foundation has minimum x=13.3, giving 1.3 m clearance beyond the x=12 fence, and its long side runs parallel to all four tracks.
+- Final elevated visual QA shows the complete cabin outside the fence; final browser checks report no failed requests, console errors, or framework overlay.

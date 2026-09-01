@@ -12,6 +12,7 @@ describe('site asset transforms', () => {
     const opticalAxis = new THREE.Vector3(0, 0, 1)
       .applyAxisAngle(new THREE.Vector3(1, 0, 0), CAM5_MODEL_TRANSFORM.rotationX);
     expect(opticalAxis.y).toBeGreaterThan(0.999);
+    expect(CAM5_MODEL_TRANSFORM.position[1]).toBe(0.3);
   });
 
   it('keeps the complete project-office foundation beyond the fence', () => {

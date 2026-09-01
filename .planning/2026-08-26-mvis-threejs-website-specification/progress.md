@@ -88,6 +88,14 @@
 - Rendered QA confirmed CAM-5 focus, office placement and down-track night illumination. The focused night test, 14-check operator flow and 15-check rain/audio/train-control flow pass with no console errors or failed requests.
 - Final verification: 18/18 Vitest tests pass and the TypeScript/Vite production build passes. Vite continues to report the existing 1.31 MB JavaScript chunk advisory.
 
+### Session: 2026-09-01 — Asset Transform Correction
+- Reproduced the user's CAM-5 and portacabin placement concerns from supplied screenshots and traced both to wrapper rotations rather than missing GLB geometry.
+- Added a shared transform contract and three regression assertions covering the upward optical axis, fence clearance, and track-parallel office footprint.
+- Corrected CAM-5 to negative 90 degrees around X, raised the supplied lens region above the LED-strip plane, and tightened its operator Locate view.
+- Removed the cabin's lateral Y rotation and moved it to `[15, 0, -5]`, completely beyond the x=12 fence with its long side parallel to the railway lines.
+- Captured and inspected `/private/tmp/mvis-corrected-cam5.png`, `/private/tmp/mvis-corrected-office.png`, and `/private/tmp/mvis-night-headlights.png`.
+- Final verification: 21/21 Vitest tests pass; the production build passes; the 14-check operator flow and 15-check rain/audio/train-control flow pass with empty issue and failed-request lists.
+
 ### Test Results
 | Test | Expected | Actual | Status |
 |------|----------|--------|--------|

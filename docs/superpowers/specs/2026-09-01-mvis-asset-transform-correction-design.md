@@ -19,7 +19,7 @@ The portacabin is approximately 2.85 m wide by 6.08 m long after runtime scaling
 
 - Rotate the loaded enclosure negative 90 degrees around X so source positive Z maps to world positive Y.
 - Keep the camera centred at the broad-gauge inspection location.
-- Use inner model offset `[0, 0.22, 0]`. Combined with CAM-5's outer y=-0.08 position, this leaves the enclosure body protected below the inspection surface while bringing its lens region into the visible strip opening.
+- Use inner model offset `[0, 0.3, 0]`. Combined with CAM-5's outer y=-0.08 position, this leaves the enclosure body protected below the inspection surface while bringing the dome and trim ring above the LED-strip plane. The offset includes the 8 cm visibility correction identified during the first rendered QA pass.
 - Continue using the named GLB meshes for lens animation and lighting state. Do not add a fake procedural lens.
 - Preserve equipment selection, marker, simulated POV, light switching, defect colour, shadows, and Suspense fallback behavior.
 

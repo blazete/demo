@@ -1,7 +1,7 @@
 export const SITE_FENCE_X = 12;
 
 export const CAM5_MODEL_TRANSFORM = {
-  position: [0, 0.22, 0] as const,
+  position: [0, 0.3, 0] as const,
   rotationX: -Math.PI / 2,
   scale: 0.72,
 } as const;

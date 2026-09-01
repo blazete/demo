@@ -70,7 +70,7 @@ export const CAMERA_EQUIPMENT: readonly CameraEquipment[] = [
   },
   {
     id: 'CAM-5', name: 'CAM-5 Under-track Line Scan', shortName: 'CAM-5', category: 'cameras', kind: 'line-scan',
-    position: [0, 0.11, 0], focusPosition: [2.7, 1.7, 2.7], lookTarget: [0, 2.4, 0], fov: 28, lens: 'Line scan',
+    position: [0, 0.19, 0], focusPosition: [1.45, 0.9, 1.4], lookTarget: [0, 2.4, 0], fov: 28, lens: 'Line scan',
     purpose: 'Builds a high-resolution strip image of the train underside as it passes.', specification: 'Under-track line-scan camera · vertical optical axis · six-strip illumination',
     capabilities: ['locate', 'preview', 'pov', 'coverage'], media: simulationMedia('CAM-5', 'a generated underframe line-scan strip'),
   },

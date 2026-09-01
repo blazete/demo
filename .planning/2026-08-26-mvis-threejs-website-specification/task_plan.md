@@ -89,6 +89,14 @@ Phase 11
 - [x] Run rendered desktop/mobile and regression verification
 - **Status:** complete
 
+### Phase 12: CAM-5 and Project-Office Transform Correction
+- [x] Diagnose the user-reported lens visibility and cabin placement defects
+- [x] Add tested optical-axis and site-clearance invariants
+- [x] Expose the supplied CAM-5 lens and tighten its operator focus view
+- [x] Move the complete office footprint outside the fence and parallel to the tracks
+- [x] Verify corrected renders, desktop/mobile operator flows, train controls, audio and weather regressions
+- **Status:** complete
+
 ## Decisions Made
 | Decision | Rationale |
 |----------|-----------|
