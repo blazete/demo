@@ -30,7 +30,7 @@
 - Produces: `add_box(name, location, dimensions, material, collection, bevel=0.015)` returning a `bpy.types.Object`.
 - Produces: `make_material(name, base_color, metallic, roughness)` returning a `bpy.types.Material`.
 
-- [ ] **Step 1: Create the material and geometry helpers**
+- [x] **Step 1: Create the material and geometry helpers**
 
 ```python
 def add_box(name, location, dimensions, material, collection, bevel=0.015):
@@ -48,7 +48,7 @@ def add_box(name, location, dimensions, material, collection, bevel=0.015):
     return obj
 ```
 
-- [ ] **Step 2: Build the right-side structure**
+- [x] **Step 2: Build the right-side structure**
 
 Create two 0.5 m foundations centered at `x=-2.25` and `x=2.25`, 50 mm posts from foundation top to cabinet bottom, a 5.0 × 0.5 × 0.72 m cabinet panel, and a 40 mm perimeter frame. Place the assembly around `y=1.75` with its cabinet center at `z=1.9`.
 
@@ -59,7 +59,7 @@ cabinet_height = 0.8
 cabinet_center_z = cabinet_bottom + cabinet_height / 2
 ```
 
-- [ ] **Step 3: Build the left-side structure**
+- [x] **Step 3: Build the left-side structure**
 
 Create two 0.5 m foundations centered beneath a 1.5 m cabinet, 50 mm supports, a 1.5 × 0.5 × 1.72 m cabinet panel, a 40 mm perimeter frame, and two horizontal 40 mm separators. Place the assembly around `y=-1.75` with its cabinet center at `z=1.7`.
 
@@ -70,7 +70,7 @@ cabinet_height = 1.8
 cabinet_center_z = cabinet_bottom + cabinet_height / 2
 ```
 
-- [ ] **Step 4: Add presentation elements and save**
+- [x] **Step 4: Add presentation elements and save**
 
 Add a neutral ground plane, set the existing camera to a three-quarter view, configure the existing light as a soft area light, add a sun, and save to `/Users/shreyanshmalviya/Desktop/threejs/MVIS_NZM_Gantry_Structures.blend`.
 
@@ -80,7 +80,7 @@ bpy.ops.wm.save_as_mainfile(
 )
 ```
 
-- [ ] **Step 5: Validate syntax**
+- [x] **Step 5: Validate syntax**
 
 Run:
 
@@ -90,7 +90,7 @@ Run:
 
 Expected: Blender exits successfully after saving the scene.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add scripts/build_mvis_gantry.py
@@ -107,11 +107,11 @@ git commit -m "feat: build MVIS Blender gantry structures"
 - Consumes: `build_scene()` from `scripts/build_mvis_gantry.py`.
 - Produces: populated live Blender scene and a saved `.blend` artifact.
 
-- [ ] **Step 1: Execute the script through the Blender MCP socket**
+- [x] **Step 1: Execute the script through the Blender MCP socket**
 
 Send an `execute_code` command whose code is the full contents of `scripts/build_mvis_gantry.py` to `127.0.0.1:9876`.
 
-- [ ] **Step 2: Read exact dimensions from the live scene**
+- [x] **Step 2: Read exact dimensions from the live scene**
 
 Run this verification inside Blender:
 
@@ -123,14 +123,14 @@ print(json.dumps({name: list(bpy.data.objects[name].dimensions) for name in name
 
 Expected cabinet core dimensions are `[4.92, 0.46, 0.72]` and `[1.42, 0.46, 1.72]`; the outer frames establish the exact 5.0 × 0.5 × 0.8 m and 1.5 × 0.5 × 1.8 m envelopes.
 
-- [ ] **Step 3: Verify foundations and collections**
+- [x] **Step 3: Verify foundations and collections**
 
 Confirm four objects with names ending in `_Foundation` have dimensions `[0.5, 0.5, 0.5]`, and confirm all four required `MVIS_*` collections exist.
 
-- [ ] **Step 4: Inspect the live viewport**
+- [x] **Step 4: Inspect the live viewport**
 
 Confirm both structures are visible, separated, correctly framed, and free of obvious overlap or missing members.
 
-- [ ] **Step 5: Save the verified scene**
+- [x] **Step 5: Save the verified scene**
 
 Run `bpy.ops.wm.save_as_mainfile(filepath=...)` once more after verification so the delivered `.blend` contains the validated state.
