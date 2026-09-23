@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
-import { clone as cloneSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import * as THREE from 'three';
 
 const MODELS = {
   coach: '/assets/models/indian-lhb-coach.glb',
   generator: '/assets/models/indian-lhb-generator-car.glb',
   locomotive: '/assets/models/indian-wap7-locomotive.glb',
-  engineer: '/assets/models/indian-field-engineer.glb',
   track: '/assets/models/indian-track-ballast.glb',
 } as const;
 
@@ -81,21 +79,6 @@ export function LicensedTrackTiles() {
   const { scene } = useGLTF(MODELS.track);
   const tiles = useMemo(() => [-17.2, -12.2, -7.2, 7.2, 12.2, 17.2].map((z) => ({ z, model: prepareStaticModel(scene) })), [scene]);
   return <group name="licensed-indian-railway-track-detail">{tiles.map(({ z, model }) => <primitive key={z} object={model} scale={1.31} position={[0, 0.055, z]} />)}</group>;
-}
-
-export function LicensedEngineerBase({ active: _active }: { active: boolean }) {
-  const { scene } = useGLTF(MODELS.engineer);
-  const model = useMemo(() => cloneSkeleton(scene) as THREE.Group, [scene]);
-
-  useEffect(() => {
-    model.traverse((child) => {
-      if (child instanceof THREE.Mesh) { child.castShadow = true; child.receiveShadow = true; }
-    });
-  }, [model]);
-
-  return <group name="licensed-indian-engineer" scale={1.02} position={[0, -0.095, 0]}>
-    <primitive object={model} />
-  </group>;
 }
 
 Object.values(MODELS).forEach((url) => useGLTF.preload(url));

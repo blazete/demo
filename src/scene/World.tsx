@@ -8,7 +8,6 @@ import { CameraDirector, type CameraShot } from '../systems/camera/CameraDirecto
 import { LightingRig } from './effects/LightingRig';
 import { ControlRoom } from './control-room/ControlRoom';
 import { ThirdPersonController } from '../systems/character/ThirdPersonController';
-import { FieldEngineer } from './character/FieldEngineer';
 import { OperatorCameraController } from '../systems/camera/OperatorCameraController';
 import { TriggerSensorSystem } from './sensors/TriggerSensorSystem';
 import { getEquipment } from '../data/equipment/equipmentRegistry';
@@ -88,7 +87,6 @@ export function World({ scenario, context, portalState, currentShot, isGuided, h
       <BackgroundElements />
       <Portal portalState={portalState} paused={context.paused ?? false} selectedEquipmentId={selectedEquipmentId} lightsEnabled={lightsEnabled} coverageEnabled={coverageEnabled} onEquipmentSelect={onEquipmentSelect} />
       <TriggerSensorSystem visible={sensorsEnabled} pulse={sensorPulse} selectedEquipmentId={selectedEquipmentId} onEquipmentSelect={onEquipmentSelect ?? (() => {})} />
-      <FieldEngineer active={portalState === 'active' || portalState === 'defect_detected'} qualityTier={context.qualityTier} />
       <Train position={trainPos.current} speed={TRAIN_SPEED} night={timeOfDay === 'night'} coachCount={scenario?.trainRun.coachCount ?? 18}
         coaches={scenario?.trainRun.coaches}
         portalState={portalState} activeCoachIndex={activeIdx} highlightedComponent={highlightedComponent}
